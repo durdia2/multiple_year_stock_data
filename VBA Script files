@@ -1,0 +1,153 @@
+Sub Stockdataloop()
+
+'Define all variables
+    Dim ws As Worksheet
+    Dim ticker As String
+    ticker = " "
+    Dim year_open As Double
+    year_open = 0
+    Dim year_close As Double
+    year_close = 0
+    Dim yearly_change As Double
+    yearly_change = 0
+    Dim percent_change As Double
+    percent_change = 0
+    Dim max_ticker As String
+    max_ticker = " "
+    Dim min_ticker As String
+    min_ticker = " "
+    Dim max_percent As Double
+    max_percent = 0
+    Dim min_percent As Double
+    min_percent = 0
+    Dim max_volume_ticker As String
+    max_volume_ticker = " "
+    Dim max_volume As Double
+    max_volume = 0
+    Dim stock_volume As Double
+    stock_volume = 0
+    Dim Summary_Table_Row As Long
+    Summary_Table_Row = 2
+
+'Label columns
+For Each ws In Worksheets
+        ws.Cells(1, 9).Value = "Ticker"
+        ws.Cells(1, 10).Value = "Yearly Change"
+        ws.Cells(1, 11).Value = "Percent Change"
+        ws.Cells(1, 12).Value = "Total Stock Volume"
+        ws.Range("p1").Value = "Ticker"
+        ws.Range("q1").Value = "Value"
+        
+'Find the last row
+        Dim Lastrow As Long
+            Lastrow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+
+'set initial value for year open
+
+            year_open = ws.Cells(2, 3).Value
+
+'Begin the loop
+
+        For i = 2 To Lastrow
+             stock_volume = stock_volume + ws.Cells(i, 7).Value
+
+ 'Check to see the same ticker name
+
+        If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+        
+  'Now find values
+
+        ticker = ws.Cells(i, 1).Value
+
+'calculate values
+    
+        year_close = ws.Cells(i, 6).Value
+        yearly_change = year_close - year_open
+    
+ 'now set a condition with a value of zero
+ 
+         If year_open <> 0 Then
+            percent_change = (year_close - year_open) / year_open
+        Else
+            percent_change = 1000000000
+        End If
+
+ 'get next year_open price
+ 
+        year_open = ws.Cells(i + 1, 3).Value
+
+'caculate greatest increase, decrease, and total volume
+     If (percent_change > max_percent) Then
+        max_percent = percent_change
+        max_ticker = ticker
+    
+      ElseIf (percent_change < min_percent) Then
+        min_percent = percent_change
+        min_ticker = ticker
+
+
+    End If
+
+    If (stock_volume > max_volume) Then
+            max_volume = stock_volume
+            max_volume_ticker = ticker
+
+    End If
+
+  'Print values into summary table
+        ws.Range("I" & Summary_Table_Row).Value = ticker
+        ws.Range("J" & Summary_Table_Row).Value = yearly_change
+        ws.Range("K" & Summary_Table_Row).Value = (CStr(percent_change))
+        ws.Range("L" & Summary_Table_Row).Value = stock_volume
+  
+        Summary_Table_Row = Summary_Table_Row + 1
+        
+            percent_change = 0
+            stock_volume = 0
+
+'Next ticker and stockvolume
+
+    End If
+ 
+    Next i
+
+'Print Values
+        ws.Range("Q2").Value = (CStr(max_percent * 100) & "%")
+        ws.Range("Q3").Value = (CStr(min_percent * (-100)) & "%")
+        ws.Range("Q4").Value = max_volume
+        ws.Range("P2").Value = max_ticker
+        ws.Range("P3").Value = min_ticker
+        ws.Range("P4").Value = max_volume_ticker
+        ws.Range("O2").Value = "Greatest % Increase"
+        ws.Range("O3").Value = "Greatest % Decrease"
+        ws.Range("O4").Value = "Greatest Total Volume"
+
+'Set column K to show as percentage
+
+        ws.Columns("K").NumberFormat = "0.00%"
+
+'set colors to column J
+
+    Dim LR As Long
+        LR = ws.Range("J" & Rows.Count).End(xlUp).Row
+
+    Dim rcount
+    For rcnt = 2 To LR
+    
+    If (ws.Cells(rcnt, 10).Value <= 0) Then
+        ws.Cells(rcnt, 10).Interior.ColorIndex = 3
+    
+    ElseIf (ws.Cells(rcnt, 10).Value > 0) Then
+        ws.Cells(rcnt, 10).Interior.ColorIndex = 4
+    
+    End If
+    
+    Next rcnt
+    
+    'reset summary table row counter
+    Summary_Table_Row = 2
+    
+Next ws
+End Sub
+
+
