@@ -11,3 +11,4 @@ A Script was created to loop through all the stocks for one year that output the
     
    - the "Greatest % increase", "Greatest % decrease", and "Greatest total volume".
  
+I was not able to successful run the loop through all the worksheets so I ran the loop seperately in each sheet and took screenshots of that.
